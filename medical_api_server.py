@@ -1,44 +1,50 @@
 import asyncio
 import time
 import sqlite3
+import aiofiles  # 🚀 ADVANCED ASYNC FILE IO: Non-blocking disk writing engine
 from fastapi import FastAPI, HTTPException, Request
 
-# Initialize High-Performance Async Routing Infrastructure
 app = FastAPI(
     title="Aam Janata Swasthya Mitra - Core Engine",
-    description="Enterprise Async REST API Linked to Indexed SQLite Storage with Middleware Logging",
-    version="3.0.0"
+    description="Enterprise Async REST API Linked to Indexed SQLite Storage with Async File Telemetry",
+    version="4.0.0"
 )
 
-# 🔒 THE ENTERPRISE MIDDLEWARE GUARD: Asynchronous interceptor tracking loop
+LOG_FILE_PATH = "security_telemetry.log"
+
+# 🔒 THE COMPLIANT MIDDLEWARE SHIELD: Writing logs safely to disk file asynchronously
 @app.middleware("http")
 async def advanced_transaction_logger_middleware(request: Request, call_next):
     """
-    Intercepts every incoming network packet, measures execution overhead 
-    in microseconds, and logs footprints without blocking the event loop.
+    Intercepts network packets, calculates exact microsecond latency,
+    and streams footprints directly to a persistent disk file without blocking incoming traffic.
     """
     start_time = time.perf_counter()
     
-    # Pass the transaction packet cleanly down to its matching destination route
+    # Pass execution cleanly to the targeted destination route
     response = await call_next(request)
     
     end_time = time.perf_counter()
     execution_duration_ms = (end_time - start_time) * 1000
     
-    # Capture telemetry elements securely
     client_ip = request.client.host if request.client else "UNKNOWN_SOURCE"
     request_method = request.method
     endpoint_path = request.url.path
     status_code = response.status_code
     
-    # Print the network analytics safely to the terminal console grid
+    # Standardized production log format structure
     log_statement = (
-        f"📊 [TELEMETRY] {client_ip} | {request_method} {endpoint_path} "
-        f"-> Status: {status_code} | Latency: {execution_duration_ms:.2f} ms"
+        f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] 📊 [TELEMETRY] {client_ip} | "
+        f"{request_method} {endpoint_path} -> Status: {status_code} | Latency: {execution_duration_ms:.2f} ms\n"
     )
-    print(log_statement)
     
-    # Return the response payload stably back to the browser viewport
+    # Print live metrics to terminal viewport
+    print(log_statement.strip())
+    
+    # 📝 THE SENIOR ASYNC FILE TRICK: Streaming directly to the disk without locking the main thread pool
+    async with aiofiles.open(LOG_FILE_PATH, mode="a", encoding="utf-8") as log_file:
+        await log_file.write(log_statement)
+        
     return response
 
 def fetch_doctor_from_db(doctor_id: int):
